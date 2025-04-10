@@ -39,6 +39,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [humanizingMessageId, setHumanizingMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isListening, setIsListening] = useState(false);
 
   // Função para rolar para a última mensagem
   const scrollToBottom = () => {
@@ -149,6 +150,46 @@ function App() {
     }
   };
 
+  const handleVoiceInput = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      // Em vez de um alerta, exibir uma mensagem mais amigável e oferecer alternativa
+      setError("Seu navegador não suporta reconhecimento de voz. Tente usar o Chrome ou Edge, ou digite sua mensagem manualmente.");
+      setTimeout(() => setError(null), 5000); // Remove a mensagem após 5 segundos
+      return;
+    }
+    
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    recognition.continuous = false;
+    
+    setIsListening(!isListening);
+    
+    if (!isListening) {
+      recognition.start();
+      
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        setIsListening(false);
+      };
+      
+      recognition.onerror = (event: any) => {
+        console.error('Erro no reconhecimento de voz:', event.error);
+        setIsListening(false);
+        setError(`Erro no reconhecimento de voz: ${event.error}`);
+        setTimeout(() => setError(null), 5000);
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+    } else {
+      recognition.stop();
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-white text-gray-800 font-sans">
       {/* Header com sombra sutil */}
@@ -240,8 +281,8 @@ function App() {
       {/* Input Footer */}
       <footer className="bg-white border-t border-gray-100 p-4 shadow-sm">
         <form onSubmit={sendMessage} className="max-w-4xl mx-auto">
-          <div className="flex gap-2 items-start"> {/* Alterado para items-start para alinhar contador */}
-            <div className="flex-1 flex flex-col"> {/* Div para agrupar input e contador */}
+          <div className="flex gap-2 items-start">
+            <div className="flex-1 flex flex-col">
               <input
                 type="text"
                 value={input}
@@ -249,20 +290,31 @@ function App() {
                 placeholder="Digite sua mensagem..."
                 className="flex-1 p-3 rounded-xl bg-white border border-gray-200 focus:border-jumbo focus:ring-1 focus:ring-jumbo text-gray-800 placeholder-gray-400 transition-all duration-300 outline-none"
                 disabled={isLoading}
-                maxLength={MAX_INPUT_LENGTH} // Adiciona atributo HTML para reforçar limite
+                maxLength={MAX_INPUT_LENGTH}
               />
-              {/* Contador de Caracteres */}
               <div className="text-xs text-gray-400 text-right pr-2 pt-1">
                 {input.length}/{MAX_INPUT_LENGTH}
               </div>
             </div>
             <button
-              type="submit"
-              // Desabilita se exceder o limite também
-              disabled={isLoading || !input.trim() || input.length > MAX_INPUT_LENGTH} 
-              className="p-3 bg-jumbo hover:bg-jumbo-dark text-white rounded-xl transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md mt-1" // Adicionado mt-1 para alinhar melhor
+              type="button"
+              onClick={handleVoiceInput}
+              className="p-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md mt-1"
             >
-              <FiSend className="w-5 h-5" />
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                <path d="M8.25 4.5a3.75 3.75 0 117.5 0v8.25a3.75 3.75 0 11-7.5 0V4.5z" />
+                <path d="M6 10.5a.75.75 0 01.75.75v1.5a5.25 5.25 0 1010.5 0v-1.5a.75.75 0 011.5 0v1.5a6.751 6.751 0 01-6 6.709v2.291h3a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5h3v-2.291a6.751 6.751 0 01-6-6.709v-1.5A.75.75 0 016 10.5z" />
+              </svg>
+            </button>
+            <button
+              type="submit"
+              disabled={!input.trim() || isLoading}
+              className="p-3 bg-jumbo hover:bg-jumbo-dark text-white rounded-xl transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md mt-1"
+            >
+              <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
             </button>
           </div>
         </form>
