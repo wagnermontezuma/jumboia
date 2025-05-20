@@ -1,0 +1,13 @@
+{
+  "welcome_message_prefix": "Bem-vindo ao",
+  "welcome_subtitle": "Pergunte a JumboIA qualquer dúvida sobre suas matérias escolares e obtenha respostas detalhadas e precisas.",
+  "example_question_1": "Explique o ciclo da água de forma simples",
+  "example_question_2": "Como resolver equações de segundo grau?",
+  "example_question_3": "Quais são os principais eventos da Segunda Guerra",
+  "input_placeholder": "Digite sua pergunta aqui...",
+  "chat_ia_tab": "Chat IA",
+  "quizzes_tab": "Quizzes",
+  "materias_tab": "Matérias",
+  "simulado_tab": "Simulado",
+  "calendario_tab": "Calendário"
+} 

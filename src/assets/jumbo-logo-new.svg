@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gota azul -->
+  <path d="M24 4C24 4 10 22 10 32C10 42 18 44 24 44C30 44 38 42 38 32C38 22 24 4 24 4Z" fill="url(#blue_gradient)"/>
+  
+  <!-- Brilho na gota -->
+  <path d="M20 18C20 18 16 24 16 28C16 32 18 34 20 35C18 34 14 32 14 26C14 20 20 14 20 14L20 18Z" fill="white" fill-opacity="0.4"/>
+  
+  <!-- Definição dos gradientes -->
+  <defs>
+    <linearGradient id="blue_gradient" x1="24" y1="4" x2="24" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4a9bff"/>
+      <stop offset="1" stop-color="#0056b3"/>
+    </linearGradient>
+  </defs>
+</svg> 

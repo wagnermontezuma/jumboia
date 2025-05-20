@@ -1,0 +1,13 @@
+{
+  "welcome_message_prefix": "Welcome to",
+  "welcome_subtitle": "Ask JumboIA any questions about your school subjects and get detailed and accurate answers.",
+  "example_question_1": "Explain the water cycle in a simple way",
+  "example_question_2": "How to solve quadratic equations?",
+  "example_question_3": "What are the main events of World War II",
+  "input_placeholder": "Type your question here...",
+  "chat_ia_tab": "Chat AI",
+  "quizzes_tab": "Quizzes",
+  "materias_tab": "Subjects",
+  "simulado_tab": "Mock Test",
+  "calendario_tab": "Calendar"
+} 

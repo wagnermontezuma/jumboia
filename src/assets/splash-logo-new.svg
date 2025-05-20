@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fundo circular com gradiente -->
+  <circle cx="64" cy="64" r="64" fill="url(#paint0_radial)" />
+  
+  <!-- Efeito de luz externa -->
+  <circle cx="64" cy="64" r="62" stroke="white" stroke-opacity="0.2" stroke-width="4"/>
+  
+  <!-- Elefante em branco -->
+  <path d="M32 29C45 16 83 16 96 29C112 48 112 80 96 80C80 80 80 64 64 64C48 64 48 80 32 80C16 80 16 48 32 29Z" fill="white"/>
+  <circle cx="48" cy="48" r="5" fill="url(#paint1_linear)"/>
+  <circle cx="80" cy="48" r="5" fill="url(#paint1_linear)"/>
+  <path d="M64 64V88C64 96 56 101 48 96L32 83" fill="white"/>
+  <path d="M64 64V88C64 96 56 101 48 96L32 83" stroke="white" stroke-width="2"/>
+  <path d="M40 27C42.5 24 48 19 56 19" stroke="white" stroke-opacity="0.5" stroke-width="2"/>
+  
+  <!-- Definições dos gradientes -->
+  <defs>
+    <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(64 64) rotate(90) scale(64)">
+      <stop offset="0" stop-color="#92D275"/>
+      <stop offset="1" stop-color="#5CAA3F"/>
+    </radialGradient>
+    <linearGradient id="paint1_linear" x1="48" y1="43" x2="48" y2="53" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5CAA3F"/>
+      <stop offset="1" stop-color="#92D275"/>
+    </linearGradient>
+  </defs>
+</svg> 

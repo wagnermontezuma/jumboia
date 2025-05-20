@@ -1,0 +1,108 @@
+.react-calendar {
+  width: 100%;
+  max-width: 800px;
+  background: #fff;
+  border-radius: 18px;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.4rem;
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.06);
+  margin-bottom: 2rem;
+}
+
+.react-calendar__navigation {
+  display: flex;
+  height: 70px;
+  margin-bottom: 12px;
+}
+
+.react-calendar__navigation button {
+  color: #219653;
+  min-width: 54px;
+  background: none;
+  font-size: 1.5rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  transition: background 0.2s;
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background: #e8f5e9;
+}
+
+.react-calendar__month-view__weekdays {
+  display: none;
+}
+
+.react-calendar__tile {
+  max-width: 100%;
+  min-height: 64px;
+  padding: 22px 0 22px 0;
+  background: none;
+  text-align: center;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+  font-size: 1.2rem;
+  color: #222;
+  border: none;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background: #a7f3d0;
+  color: #219653;
+  border-radius: 8px;
+}
+
+/* Dia selecionado */
+.react-calendar__tile--active {
+  background: #fff !important;
+  color: #065f46 !important;
+  border-radius: 8px !important;
+  border: none !important;
+}
+
+/* Dias com compromisso */
+.bg-jumbo-100 {
+  background: #a7f3d0 !important;
+  color: #065f46 !important;
+  font-weight: bold;
+  border-radius: 8px !important;
+}
+.text-jumbo-700 {
+  color: #065f46 !important;
+}
+
+/* Remover borda do mês atual */
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: #bdbdbd;
+  background: none;
+}
+
+/* Responsivo */
+@media (max-width: 900px) {
+  .react-calendar {
+    max-width: 100%;
+    font-size: 1.1rem;
+  }
+  .react-calendar__tile {
+    min-height: 44px;
+    padding: 10px 0 10px 0;
+  }
+}
+
+.react-calendar__tile--now {
+  background: #fff !important;
+  color: #065f46 !important;
+  border: 2px solid #10b981 !important;
+  border-radius: 8px !important;
+}
+
+.react-calendar__tile--now.react-calendar__tile--active {
+  background: #a7f3d0 !important;
+  color: #065f46 !important;
+  border-radius: 8px !important;
+  border: none !important;
+} 

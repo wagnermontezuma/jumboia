@@ -1,0 +1,62 @@
+# JumboIA - Regras e Padrões do Projeto
+
+## Padrões de Código
+- Usar TypeScript para todos os novos arquivos
+- Seguir o estilo de componentes React funcional com hooks
+- Usar TailwindCSS para estilização
+- Adotar nomes de variáveis e funções em camelCase
+- Adicionar tipagem adequada para todos os parâmetros e retornos de função
+- Usar path.join() para manipulação de caminhos de arquivo (compatibilidade Windows)
+
+## Convenções de Nomenclatura
+- Componentes React: PascalCase (ex: ChatInterface, MessageBubble)
+- Funções e variáveis: camelCase (ex: sendMessage, userInput)
+- Arquivos de componentes: PascalCase.tsx (ex: ChatInterface.tsx)
+- Constantes: UPPER_SNAKE_CASE (ex: API_ENDPOINT)
+
+## Estrutura de Diretórios
+- /src: Código-fonte do frontend
+- /backend: Código-fonte do backend
+- /public: Arquivos estáticos
+- /memory-bank: Documentação do projeto
+
+## Padrões de Commit
+- feat: Novos recursos
+- fix: Correções de bugs
+- docs: Alterações na documentação
+- style: Alterações de estilo e formatação
+- refactor: Refatoração de código
+- test: Adição ou modificação de testes
+- chore: Alterações em tarefas de build/config
+
+## Fluxo de Trabalho
+- Revisar as tarefas no arquivo activeContext.md
+- Atualizar o progresso em progress.md após cada sessão de trabalho
+- Documentar qualquer novo padrão descoberto neste arquivo (.cursorrules)
+- Testar localmente antes de considerar qualquer tarefa como concluída
+
+## Preferências do Usuário
+- Respostas em Português do Brasil
+- Documentação clara e concisa
+- Explicações detalhadas para implementações complexas
+- Abordagem passo a passo para novas implementações
+
+## Integrações Importantes
+- OpenRouter API: Usar o modelo DeepSeek
+- Ambiente de desenvolvimento: Vite + React
+- Deploy: Vercel (frontend) e Railway (backend)
+
+## Desenvolvimento em Windows
+- Usar PowerShell como terminal padrão
+- Garantir que os scripts em package.json sejam compatíveis com Windows
+- Evitar uso de comandos específicos de Unix nos scripts
+- Utilizar a biblioteca 'path' para gerenciar caminhos de arquivos
+- Em scripts com caminhos de arquivos, usar path.join() ao invés de strings com barras
+- Verificar se as portas 3000 e 5173 não estão sendo usadas por outros serviços
+
+## Desafios Conhecidos
+- Configuração correta das variáveis de ambiente
+- Integração entre frontend e backend (CORS)
+- Limites da API do OpenRouter
+- Diferenças de terminação de linha entre sistemas (CRLF no Windows vs LF no Unix)
+- Problemas de caminhos absolutos vs relativos no Windows 
