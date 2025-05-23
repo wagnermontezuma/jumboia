@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FiLoader, FiCheck, FiX, FiClock } from 'react-icons/fi';
+import { FiLoader, FiCheck, FiX, FiClock, FiArrowLeft } from 'react-icons/fi';
 
 // URL fixa do backend
 const API_URL = 'http://localhost:3001';
 
-// Constante para o temporizador (15 minutos em segundos)
-const QUIZ_TIME_LIMIT = 15 * 60;
+// Constante para o temporizador (2 minutos em segundos)
+const QUIZ_TIME_LIMIT = 2 * 60;
 
 interface Question {
   id: string;
@@ -50,7 +50,7 @@ export const QuizPage = () => {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const response = await fetch(`${API_URL}/quiz/${quizId}`);
+        const response = await fetch(`${API_URL}/api/quiz/${quizId}`);
         
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({ error: 'Erro ao conectar com o servidor' }));
@@ -174,7 +174,7 @@ export const QuizPage = () => {
         }
       });
       
-      const response = await fetch(`${API_URL}/quiz/${quizId}/submit`, {
+      const response = await fetch(`${API_URL}/api/quiz/${quizId}/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ answers: answersPayload }),
@@ -265,7 +265,16 @@ export const QuizPage = () => {
   const passed = percentage >= 70;
   
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 simulado-page">
+      {/* Botão de voltar */}
+      <button 
+        onClick={() => navigate('/quizzes')} 
+        className="flex items-center text-jumbo hover:text-jumbo-dark mb-4 transition-colors"
+      >
+        <FiArrowLeft className="mr-2" size={20} />
+        Voltar para Quizzes
+      </button>
+      
       <h1 className="text-3xl font-bold text-center mb-3 text-green-600">JumboIA - Quiz</h1>
       <p className="text-center text-gray-600 mb-8">Criado em {formattedDate}</p>
       

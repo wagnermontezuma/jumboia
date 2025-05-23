@@ -29,4 +29,31 @@ export interface ApiResponse {
   sources?: string[];
   humanizedText?: string;
   error?: string;
+  quiz?: Quiz;
+} 
+
+/**
+ * Interface para um Quiz
+ */
+export interface Quiz {
+  id: string;
+  topic: string;
+  questions: QuizQuestion[];
+  createdAt: string;
+  timeLimit: number; // tempo em segundos
+}
+
+/**
+ * Interface para uma Questão de Quiz
+ */
+export interface QuizQuestion {
+  id: string;
+  text: string;
+  options: {
+    id: string;
+    text: string;
+    isCorrect: boolean;
+  }[];
+  explanation?: string;
+  userAnswer?: string;
 } 

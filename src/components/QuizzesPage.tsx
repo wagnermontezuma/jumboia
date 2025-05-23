@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiLoader } from 'react-icons/fi';
+import { FiLoader, FiArrowLeft } from 'react-icons/fi';
 
 // URL fixa do backend
 const API_URL = 'http://localhost:3001';
@@ -24,12 +24,16 @@ export const QuizzesPage = () => {
     setError(null);
     
     try {
-      const response = await fetch(`${API_URL}/quiz/generate`, {
+      const response = await fetch(`${API_URL}/api/quiz`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ topic: topic.trim() }),
+        body: JSON.stringify({ 
+          topic: topic.trim(),
+          questionCount: 5,
+          timeLimit: 2
+        }),
       });
       
       if (!response.ok) {
@@ -56,7 +60,16 @@ export const QuizzesPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 simulado-page">
+      {/* Botão de voltar */}
+      <button 
+        onClick={() => navigate('/')} 
+        className="flex items-center text-jumbo hover:text-jumbo-dark mb-4 transition-colors"
+      >
+        <FiArrowLeft className="mr-2" size={20} />
+        Voltar ao Início
+      </button>
+      
       <h1 className="text-3xl font-bold text-center mb-8 text-green-600">JumboIA - Quizzes Educacionais</h1>
       
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">

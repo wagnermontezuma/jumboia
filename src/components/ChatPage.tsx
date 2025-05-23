@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { ChatMessage } from '../types/chat';
-import { PlusIcon, ChatBubbleLeftIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { ChatMessage, Quiz } from '../types/chat';
+import { PlusIcon, ChatBubbleLeftIcon, TrashIcon, PencilIcon } from '@heroicons/react/24/outline';
+import QuizMode from './QuizMode';
+import { useNavigate } from 'react-router-dom';
 
 // API URL
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -23,6 +25,12 @@ const ChatPage: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showSpecialPrompts, setShowSpecialPrompts] = useState(false);
   const [showConversations, setShowConversations] = useState(false);
+  const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
+  const [editingTitleValue, setEditingTitleValue] = useState('');
+  const [showQuizMode, setShowQuizMode] = useState(false);
+  const [quizData, setQuizData] = useState<Quiz | null>(null);
+  const [quizLoading, setQuizLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Inicializar com uma conversa vazia
   useEffect(() => {
@@ -46,6 +54,64 @@ const ChatPage: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Função para gerar um quiz
+  const generateQuiz = async (topic: string) => {
+    try {
+      setQuizLoading(true);
+      setQuizData(null);
+      
+      const response = await fetch(`${API_URL}/api/quiz`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ topic }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao gerar quiz');
+      }
+      
+      // Estruturar o quiz com as perguntas
+      const quiz: Quiz = {
+        id: uuidv4(),
+        topic,
+        questions: data.questions.map((q: any) => ({
+          id: uuidv4(),
+          text: q.question,
+          options: q.options.map((opt: any, index: number) => ({
+            id: uuidv4(),
+            text: opt,
+            isCorrect: index === q.correctOptionIndex
+          }))
+        })),
+        createdAt: new Date().toISOString(),
+        timeLimit: 120 // 2 minutos
+      };
+      
+      setQuizData(quiz);
+    } catch (err) {
+      console.error('Erro ao gerar quiz:', err);
+      setError(err instanceof Error ? err.message : 'Erro desconhecido');
+    } finally {
+      setQuizLoading(false);
+    }
+  };
+
+  // Abrir o modo Quiz
+  const openQuizMode = () => {
+    setShowQuizMode(true);
+    setQuizData(null);
+  };
+
+  // Fechar o modo Quiz
+  const closeQuizMode = () => {
+    setShowQuizMode(false);
+    setQuizData(null);
+  };
+
   // Criar uma nova conversa
   const createNewConversation = () => {
     const newConversation: Conversation = {
@@ -60,6 +126,22 @@ const ChatPage: React.FC = () => {
     setMessages([]);
     setInputMessage('');
     setError(null);
+    setEditingTitleId(newConversation.id);
+    setEditingTitleValue('');
+  };
+
+  // Renomear conversa
+  const handleRenameConversation = (id: string) => {
+    if (!editingTitleValue.trim()) {
+      setEditingTitleId(null);
+      setEditingTitleValue('');
+      return;
+    }
+    setConversations(prevConversations => prevConversations.map(conv =>
+      conv.id === id ? { ...conv, title: editingTitleValue.trim() } : conv
+    ));
+    setEditingTitleId(null);
+    setEditingTitleValue('');
   };
 
   // Excluir uma conversa
@@ -108,9 +190,9 @@ const ChatPage: React.FC = () => {
       <div className="bg-white border border-gray-200 p-3 rounded-lg rounded-tl-none max-w-[80%]">
         <div className="flex items-center">
           <span className="ml-1 flex">
-            <span className="h-2 w-2 bg-gray-400 rounded-full mx-0.5 animate-bounce" style={{ animationDelay: '0ms' }}></span>
-            <span className="h-2 w-2 bg-gray-400 rounded-full mx-0.5 animate-bounce" style={{ animationDelay: '200ms' }}></span>
-            <span className="h-2 w-2 bg-gray-400 rounded-full mx-0.5 animate-bounce" style={{ animationDelay: '400ms' }}></span>
+            <span className="h-2 w-2 bg-teal-400 rounded-full mx-0.5 animate-bounce" style={{ animationDelay: '0ms' }}></span>
+            <span className="h-2 w-2 bg-teal-400 rounded-full mx-0.5 animate-bounce" style={{ animationDelay: '200ms' }}></span>
+            <span className="h-2 w-2 bg-teal-400 rounded-full mx-0.5 animate-bounce" style={{ animationDelay: '400ms' }}></span>
           </span>
         </div>
       </div>
@@ -179,7 +261,7 @@ const ChatPage: React.FC = () => {
       const errorMessage: ChatMessage = {
         id: uuidv4(),
         sender: 'bot',
-        content: 'Desculpe, ocorreu um erro ao processar sua mensagem. Please try again.',
+        content: 'Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.',
         timestamp: new Date().toISOString(),
         role: 'assistant',
         isError: true
@@ -219,7 +301,7 @@ const ChatPage: React.FC = () => {
               : 'bg-white border border-gray-200 rounded-tl-none'
           } ${message.isError ? 'border-red-300 bg-red-50' : ''}`}
         >
-          <p className={`text-base font-medium ${isUser ? 'text-white' : 'text-gray-800'}`}>
+          <p className={`text-base ${isUser ? 'text-white' : 'text-gray-800'}`}>
             {message.content}
           </p>
           {message.sources && message.sources.length > 0 && (
@@ -240,140 +322,175 @@ const ChatPage: React.FC = () => {
   return (
     <div className="h-full flex">
       {/* Lista de conversas no lado esquerdo */}
-      <div className="w-72 h-full bg-white border-r border-gray-200 shadow-lg overflow-y-auto">
+      <div className="w-72 h-full bg-white border-r border-gray-100 shadow-sm overflow-y-auto">
         <div className="p-4">
-          <h3 className="font-bold text-lg mb-2 border-b pb-2">Suas Conversas</h3>
+          <h3 className="sidebar-title">Suas Conversas</h3>
           {conversations.length === 0 ? (
             <p className="text-gray-500">Nenhuma conversa encontrada</p>
           ) : (
             <ul>
               {conversations.map(conv => (
                 <li 
-                  key={conv.id} 
-                  className={`flex justify-between items-center p-2 mb-1 rounded-lg hover:bg-gray-100 cursor-pointer ${
-                    activeConversationId === conv.id ? 'bg-green-50 border border-green-200' : ''
-                  }`}
+                  key={conv.id}
+                  className={`sidebar-conversation ${activeConversationId === conv.id ? 'active' : ''}`}
                   onClick={() => setActiveConversationId(conv.id)}
                 >
-                  <span className="flex-1 truncate">{conv.title}</span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteConversation(conv.id);
-                    }}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <TrashIcon className="h-5 w-5" />
-                  </button>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <ChatBubbleLeftIcon className="h-4 w-4 text-teal-400" />
+                      {editingTitleId === conv.id ? (
+                        <input
+                          className="text-sm border-b border-teal-400 outline-none bg-transparent w-32"
+                          autoFocus
+                          value={editingTitleValue}
+                          onChange={e => setEditingTitleValue(e.target.value)}
+                          onBlur={() => handleRenameConversation(conv.id)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') {
+                              handleRenameConversation(conv.id);
+                            }
+                          }}
+                          placeholder={conv.title}
+                        />
+                      ) : (
+                        <span
+                          className="text-sm truncate cursor-pointer"
+                          title="Clique no lápis para editar"
+                        >
+                          {conv.title}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        className="text-gray-400 hover:text-teal-500 p-0.5 rounded"
+                        onClick={e => {
+                          e.stopPropagation();
+                          setEditingTitleId(conv.id);
+                          setEditingTitleValue(conv.title);
+                        }}
+                        title="Editar nome da conversa"
+                      >
+                        <PencilIcon className="h-4 w-4" />
+                      </button>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteConversation(conv.id);
+                        }}
+                        className="text-gray-400 hover:text-red-500"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
                 </li>
               ))}
             </ul>
           )}
+          <button 
+            onClick={createNewConversation}
+            className="mt-4 w-full flex items-center justify-center space-x-2 py-2 px-4 border border-gray-200 rounded-lg hover:bg-teal-400/10 transition-colors duration-200"
+          >
+            <PlusIcon className="h-4 w-4 text-teal-400" />
+            <span className="text-sm">Nova conversa</span>
+          </button>
+          {/* Atalhos abaixo do botão Nova conversa */}
+          <ul className="mt-4 flex flex-col gap-2">
+            <li><button className="w-full text-left px-4 py-3 rounded-lg bg-white border border-gray-200 text-base font-medium text-gray-700 hover:bg-teal-50 transition">Resumo</button></li>
+            <li><button className="w-full text-left px-4 py-3 rounded-lg bg-white border border-gray-200 text-base font-medium text-gray-700 hover:bg-teal-50 transition">Redação</button></li>
+            <li><button 
+              className="w-full text-left px-4 py-3 rounded-lg bg-white border border-gray-200 text-base font-medium text-gray-700 hover:bg-teal-50 transition"
+              onClick={openQuizMode}
+            >Quizzes</button></li>
+            <li>
+              <button
+                className="w-full text-left px-4 py-3 rounded-lg bg-white border border-gray-200 text-base font-medium text-gray-700 hover:bg-teal-50 transition"
+                onClick={() => navigate('/simulado')}
+              >
+                Simulado
+              </button>
+            </li>
+            <li><button className="w-full text-left px-4 py-3 rounded-lg bg-white border border-gray-200 text-base font-medium text-gray-700 hover:bg-teal-50 transition">Sequência Didática</button></li>
+            <li><button className="w-full text-left px-4 py-3 rounded-lg bg-white border border-gray-200 text-base font-medium text-gray-700 hover:bg-teal-50 transition">Aulas Eletivas</button></li>
+            <li><button className="w-full text-left px-4 py-3 rounded-lg bg-white border border-gray-200 text-base font-medium text-gray-700 hover:bg-teal-50 transition">Matérias</button></li>
+          </ul>
         </div>
       </div>
 
-      {/* Área de chat */}
-      <div className="flex-grow flex flex-col bg-gray-100">
-        {/* Chat messages */}
-        <div className="flex-grow overflow-y-auto p-4 bg-white">
+      {/* Área de chat no lado direito */}
+      <div className="flex-1 flex flex-col h-full bg-white">
+        {/* Cabeçalho */}
+        <div className="p-4 border-b border-gray-100 flex items-center justify-center bg-white">
+          <span className="font-bold text-green-500 text-2xl">Jumbo</span>
+          <span className="font-bold text-green-500 text-2xl ml-1">IA</span>
+          <span className="text-teal-400 text-sm ml-2" style={{ alignSelf: 'flex-end' }}>by GOTTA</span>
+        </div>
+
+        {/* Área de mensagens */}
+        <div className="flex-1 overflow-y-auto p-4">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-400">
-              <p className="mb-2 text-2xl font-bold">Bem-vindo ao JumboIA</p>
-              <p className="text-base font-medium">Envie uma mensagem para começar a conversa</p>
+            <div className="h-full flex flex-col items-center justify-center">
+              <h2 className="welcome-title">Bem-vindo ao JumboIA</h2>
+              <p className="welcome-subtitle">Envie uma mensagem para começar a conversa</p>
             </div>
           ) : (
             <div>
-              {messages.map(renderMessage)}
+              {messages.map(message => renderMessage(message))}
               {isLoading && <TypingIndicator />}
               <div ref={messagesEndRef} />
             </div>
           )}
         </div>
-        
-        {error && (
-          <div className="p-2 text-center text-sm text-red-500 bg-red-50 border-t border-red-200">
-            {error}
-          </div>
-        )}
 
-        {/* Input form */}
-        <div className="p-4 border-t border-gray-200 bg-gray-50">
-          <form onSubmit={handleSubmit} className="flex flex-col space-y-3">
+        {/* Rodapé com área de entrada de texto */}
+        <div className="p-4 border-t border-gray-100">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-2">
             <textarea
+              className="chat-gpt-textarea"
+              placeholder="Digite sua mensagem aqui..."
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Digite sua mensagem aqui..."
-              className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 min-h-[120px] text-base font-medium bg-gradient-to-r from-green-50 to-green-100"
-              disabled={isLoading}
+              rows={1}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
-                  if (inputMessage.trim()) {
-                    handleSubmit(e);
-                  }
+                  sendMessage();
                 }
               }}
             />
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between mt-2">
               <button
                 type="button"
-                onClick={() => setShowSpecialPrompts(!showSpecialPrompts)}
-                className="bg-gray-200 text-gray-600 p-3 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                title="Mostrar prompts especiais"
-              >
-                <PlusIcon className="h-6 w-6" />
-              </button>
-              
-              <button
                 onClick={handleClearChat}
-                className="text-sm font-medium text-gray-500 hover:text-red-500 mx-auto"
+                className="text-gray-400 hover:text-teal-400 px-2 py-1 text-sm"
               >
                 Limpar conversa
               </button>
-              
               <button
                 type="submit"
-                disabled={isLoading || !inputMessage.trim()}
-                className="bg-gradient-to-r from-green-500 to-green-400 text-white px-8 py-3 rounded-lg text-lg font-bold hover:from-green-600 hover:to-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
+                className="send-button"
+                disabled={!inputMessage.trim() || isLoading}
               >
-                Enviar
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+                </svg>
               </button>
             </div>
           </form>
-
-          {showSpecialPrompts && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                onClick={() => {
-                  setInputMessage("Ajude-me a fazer uma redação sobre ");
-                  setShowSpecialPrompts(false);
-                }}
-                className="text-sm font-medium bg-gray-100 text-gray-800 px-4 py-2 rounded-full hover:bg-gray-200"
-              >
-                Redação
-              </button>
-              <button
-                onClick={() => {
-                  setInputMessage("Faça um resumo do conteúdo sobre ");
-                  setShowSpecialPrompts(false);
-                }}
-                className="text-sm font-medium bg-gray-100 text-gray-800 px-4 py-2 rounded-full hover:bg-gray-200"
-              >
-                Resumo
-              </button>
-              <button
-                onClick={() => {
-                  setInputMessage("Crie um quiz sobre ");
-                  setShowSpecialPrompts(false);
-                }}
-                className="text-sm font-medium bg-gray-100 text-gray-800 px-4 py-2 rounded-full hover:bg-gray-200"
-              >
-                Quizzes
-              </button>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Modal de Quiz */}
+      {showQuizMode && (
+        <QuizMode
+          onClose={closeQuizMode}
+          onSubmitTopic={generateQuiz}
+          quiz={quizData}
+          isLoading={quizLoading}
+        />
+      )}
     </div>
   );
 };

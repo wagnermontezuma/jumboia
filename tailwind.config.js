@@ -8,10 +8,18 @@ export default {
     extend: {
       colors: {
         jumbo: {
-          DEFAULT: '#7BC96F', // Verde grama claro
-          light: '#93D388',
-          dark: '#63B357'
+          DEFAULT: '#4CAF50', // Verde principal
+          light: '#66BB6A',
+          dark: '#388E3C'
+        },
+        aqua: {
+          DEFAULT: '#4DB6AC', // Verde água
+          light: '#80CBC4',
+          dark: '#26A69A'
         }
+      },
+      fontFamily: {
+        'lato': ['Lato', 'sans-serif']
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in-out',

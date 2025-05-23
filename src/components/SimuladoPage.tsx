@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiLoader, FiClock, FiBook, FiCheckCircle, FiX } from 'react-icons/fi';
+import { FiLoader, FiClock, FiBook, FiCheckCircle, FiX, FiArrowLeft } from 'react-icons/fi';
 
 // URL fixa do backend
 const API_URL = 'http://localhost:3001';
@@ -171,7 +171,16 @@ export const SimuladoPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 simulado-page">
+      {/* Botão de voltar */}
+      <button 
+        onClick={() => navigate('/')} 
+        className="flex items-center text-jumbo hover:text-jumbo-dark mb-4 transition-colors"
+      >
+        <FiArrowLeft className="mr-2" size={20} />
+        Voltar ao Início
+      </button>
+      
       <h1 className="text-2xl font-bold text-center mb-6 text-jumbo">Criar Simulado</h1>
       
       <div className="bg-white rounded-xl shadow-md p-6 mb-8">
